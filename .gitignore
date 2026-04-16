@@ -1,0 +1,23 @@
+# 忽略 Python 缓存
+__pycache__/
+*.pyc
+*.log
+
+# 忽略大型数据目录
+data/raw_videos/
+data/train_frames/
+data/test_videos_result/
+data/anomaly_templates_rotated/
+
+# 忽略训练生成的权重和日志
+checkpoints/
+logs/
+
+# 忽略导出模型
+*.onnx
+
+# 忽略本地编辑器配置
+.vscode/
+.idea/
+.DS_Store
+*.swp
