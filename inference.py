@@ -184,13 +184,13 @@ def process_single_video(video_source, model, spatio_filter, transform, cfg, wei
         video_writer.release()
     print(f"[+] 视频处理完毕: {video_source} -> {output_path}")
 
-def main_consumer_pipeline(video_source='0', weights_path='checkpoints/best_student.pth', save_video=False):
+def main_consumer_pipeline(video_source='0', weights_path='checkpoints/best_student.pth', save_video=False, config=None):
     """【调度中心】批量/单文件推理，全局只加载一次模型"""
-    cfg = Config()
+    cfg = config if config is not None else Config()
     
     # 1. 统一加载模型，避免批量测试时重复加载
-    print(f"[*] 正在加载真·端到端模型，设备: {cfg.DEVICE}")
-    model = TeacherStudentNet().to(cfg.DEVICE)
+    print(f"[*] 正在加载真·端到端模型 ({cfg.BACKBONE})，设备: {cfg.DEVICE}")
+    model = TeacherStudentNet(backbone_name=cfg.BACKBONE).to(cfg.DEVICE)
     
     if not os.path.exists(weights_path):
         print(f"[致命错误] 找不到权重文件: {weights_path}")

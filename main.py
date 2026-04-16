@@ -38,18 +38,25 @@ def parse_args():
     parser.add_argument('--weights', type=str, default='auto',
                         help="推理或导出时使用的模型权重路径。默认 'auto' 会自动寻找 checkpoints 下最新训练的模型。")
 
+    parser.add_argument('--backbone', type=str, default=None,
+                        help="手动指定骨干网络，如 'resnet18', 'mobilenet_v3_large' 等。若不指定则使用 config 默认值。")
+
     return parser.parse_args()
 
 def main():
     args = parse_args()
     cfg = Config()
 
+    # 如果命令行指定了 backbone，则覆盖 config 中的默认值
+    if args.backbone:
+        cfg.BACKBONE = args.backbone
+
     if args.mode == 'train':
-        print(">>> 启动无监督训练流水线...")
-        train_pipeline()
+        print(f">>> 启动无监督训练流水线 [Backbone: {cfg.BACKBONE}]...")
+        train_pipeline(config=cfg)
 
     elif args.mode == 'infer':
-        print(">>> 启动多线程异步推理流水线...")
+        print(f">>> 启动多线程异步推理流水线 [Backbone: {cfg.BACKBONE}]...")
         
         # 1. 自动权重寻路逻辑
         weights_path = args.weights
@@ -65,11 +72,11 @@ def main():
         source = int(args.video_source) if args.video_source.isdigit() else args.video_source
         
         # 3. 将视频源和权重路径传递给 inference_async
-        main_consumer_pipeline(video_source=source, weights_path=weights_path, save_video=args.save_video)
+        main_consumer_pipeline(video_source=source, weights_path=weights_path, save_video=args.save_video, config=cfg)
 
     elif args.mode == 'map':
         # [新增] 热力图诊断逻辑
-        print(">>> 启动热力图可视化诊断模式...")
+        print(f">>> 启动热力图可视化诊断模式 [Backbone: {cfg.BACKBONE}]...")
         print("[提示] 红色代表网络判定的高风险异常区域，蓝色为安全区域。")
         # 1. 自动权重寻路逻辑
         weights_path = args.weights
@@ -84,10 +91,10 @@ def main():
         # 2. 处理设备号 (0) 和字符串路径的区别
         source = int(args.video_source) if args.video_source.isdigit() else args.video_source
         
-        map_pipeline(video_source=source, weights_path=weights_path, save_video=args.save_video)
+        map_pipeline(video_source=source, weights_path=weights_path, save_video=args.save_video, config=cfg)
 
     elif args.mode == 'export':
-        print(f">>> 正在将 PyTorch 模型导出为 ONNX...")
+        print(f">>> 正在将 PyTorch 模型 ({cfg.BACKBONE}) 导出为 ONNX...")
         
         # 导出模式同样支持自动寻路
         weights_path = args.weights
@@ -101,7 +108,7 @@ def main():
         if not os.path.exists(weights_path):
             print("错误：未找到权重文件！请先运行 --mode train")
             return
-        export_to_onnx(weights_path, output_path="anomaly_detector.onnx")
+        export_to_onnx(weights_path, output_path="anomaly_detector.onnx", config=cfg)
 
 if __name__ == "__main__":
     main()

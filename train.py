@@ -140,13 +140,15 @@ def setup_logger(log_dir):
         ]
     )
 
-def train_pipeline():
-    cfg = Config()
+def train_pipeline(config=None):
+    cfg = config if config is not None else Config()
     
     # 1. 目录准备
     exp_time = time.strftime("%Y%m%d_%H%M%S")
-    ckpt_dir = os.path.join("checkpoints", exp_time)
-    log_dir = os.path.join("logs", exp_time)
+    # 在时间戳前加上骨干网络名称，方便区分不同实验
+    exp_name = f"{cfg.BACKBONE}_{exp_time}"
+    ckpt_dir = os.path.join("checkpoints", exp_name)
+    log_dir = os.path.join("logs", exp_name)
     os.makedirs(ckpt_dir, exist_ok=True)
     
     setup_logger(log_dir)
@@ -171,7 +173,7 @@ def train_pipeline():
     logging.info(f"数据加载完成: 训练集 {train_size} 个 Patch, 验证集 {val_size} 个 Patch")
 
     # 3. 初始化端到端模型
-    model = TeacherStudentNet().to(cfg.DEVICE)
+    model = TeacherStudentNet(backbone_name=cfg.BACKBONE).to(cfg.DEVICE)
     model.student.train() 
     model.segmenter.train()
     

@@ -115,13 +115,13 @@ def process_single_map_video(video_source, model, transform, cfg, weights_path, 
         video_writer.release()
     print(f"[+] 导出完成: {output_path}")
 
-def main_consumer_pipeline(video_source='0', weights_path='checkpoints/best_student.pth', save_video=True):
+def main_consumer_pipeline(video_source='0', weights_path='checkpoints/best_student.pth', save_video=True, config=None):
     """批量热力图生成调度中心"""
-    cfg = Config()
+    cfg = config if config is not None else Config()
     
     # 1. 加载模型 (仅加载一次)
-    print(f"[*] 正在加载真·端到端模型，设备: {cfg.DEVICE}")
-    model = TeacherStudentNet().to(cfg.DEVICE)
+    print(f"[*] 正在加载真·端到端模型 ({cfg.BACKBONE})，设备: {cfg.DEVICE}")
+    model = TeacherStudentNet(backbone_name=cfg.BACKBONE).to(cfg.DEVICE)
     
     if not os.path.exists(weights_path):
         print(f"[-] 错误：找不到权重文件 {weights_path}")
