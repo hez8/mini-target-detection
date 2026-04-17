@@ -43,7 +43,7 @@ class Config:
     TRACKER_MAX_AGE = 10        # 丢失多少帧后彻底注销轨迹
     
     # ---------------- 训练参数 ----------------
-    BATCH_SIZE = 16            # 如果显存不够，可降至 8
+    BATCH_SIZE = 64            # 如果显存不够，可降至 8
     NUM_WORKERS = 4
     PATIENCE = 50
     LEARNING_RATE = 1e-4
