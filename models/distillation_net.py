@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
+from configs.default_config import Config
 
 # =========================================================
 # 模块 1: 空间与通道注意力机制 (CBAM-Lite)
@@ -122,6 +123,30 @@ class FeatureExtractor(nn.Module):
             self.layer1 = nn.Sequential(features[2]) # H/4, 24ch
             self.layer2 = nn.Sequential(features[3]) # H/8, 40ch
             self.out_channels = [16, 24, 40]
+            
+        elif backbone_name in ['yolo11n', 'yolo11s']:
+            try:
+                from ultralytics import YOLO
+            except ImportError:
+                raise ImportError("请运行 'pip install ultralytics' 以支持 YOLO 系列骨干网络")
+            
+            # 加载模型结构，如果 pretrained=True 则自动下载权重
+            yolo_model = YOLO(f"{backbone_name}.pt")
+            # 提取其内部的 nn.Sequential backbone
+            yolo_backbone = yolo_model.model.model
+            
+            # 根据 YOLO11 架构，提取各尺度特征层
+            # P1 (H/2): Layer 0 (Conv)
+            self.layer0 = yolo_backbone[0]
+            # P2 (H/4): Layer 1 (Conv) + Layer 2 (C3k2)
+            self.layer1 = nn.Sequential(yolo_backbone[1], yolo_backbone[2])
+            # P3 (H/8): Layer 3 (Conv) + Layer 4 (C3k2)
+            self.layer2 = nn.Sequential(yolo_backbone[3], yolo_backbone[4])
+            
+            if backbone_name == 'yolo11n':
+                self.out_channels = [16, 64, 128]
+            else: # yolo11s
+                self.out_channels = [32, 128, 256]
         else:
             raise ValueError(f"Unsupported backbone: {backbone_name}")
 
@@ -152,8 +177,12 @@ class SegmentationHead(nn.Module):
 # 模块 4: 终极 E2E 师生网络 (Configurable Edition)
 # =========================================================
 class TeacherStudentNet(nn.Module):
-    def __init__(self, backbone_name='resnet18'):
+    def __init__(self, backbone_name=None):
         super().__init__()
+        # 如果未指定，则从 Config 中自动读取
+        if backbone_name is None:
+            backbone_name = getattr(Config, 'BACKBONE', 'resnet18')
+            
         # 1. Teacher (冻结)
         self.teacher = FeatureExtractor(backbone_name=backbone_name, pretrained=True)
         for param in self.teacher.parameters():

@@ -14,7 +14,7 @@ class Config:
     WINDOW_SIZE = 5            # 短时对齐窗口大小 (必须是奇数)
     
     # ---------------- 深度学习模型配置 ----------------
-    # 师生网络骨干，可选: 'resnet18', 'mobilenet_v3_small', 'mobilenet_v3_large', 'efficientnet_b0'
+    # 师生网络骨干，可选: 'resnet18', 'yolo11n', 'yolo11s', 'mobilenet_v3_small', 'mobilenet_v3_large', 'efficientnet_b0'
     BACKBONE = 'resnet18'      
     INPUT_SIZE = (256, 256)    # 网络输入的 Patch 尺寸 (必须是 32 的整数倍)
     
