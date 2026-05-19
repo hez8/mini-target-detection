@@ -4,11 +4,11 @@ import os
 import cv2
 
 # ====== 确保这里的导入名与你的文件名完全一致 ======
-from train import train_pipeline
-from inference import main_consumer_pipeline  # 确保是从 inference 导入
-from export_onnx import export_to_onnx
+from tools.train import train_pipeline
+from tools.inference import main_consumer_pipeline
+from tools.export_onnx import export_to_onnx
 from configs.default_config import Config
-from inference_map import main_consumer_pipeline as map_pipeline  # 导入热力图诊断模块
+from tools.inference_map import main_consumer_pipeline as map_pipeline  # 导入热力图诊断模块
 
 def get_latest_model_path(base_dir="checkpoints", target_model="best_student.pth"):
     """自动寻找最新的模型权重"""
@@ -41,6 +41,9 @@ def parse_args():
     parser.add_argument('--backbone', type=str, default=None,
                         help="手动指定骨干网络，如 'resnet18', 'mobilenet_v3_large' 等。若不指定则使用 config 默认值。")
 
+    parser.add_argument('--lr', type=float, default=None,
+                        help="手动指定训练学习率。若不指定则使用 config 默认值。")
+
     return parser.parse_args()
 
 def main():
@@ -50,6 +53,11 @@ def main():
     # 如果命令行指定了 backbone，则覆盖 config 中的默认值
     if args.backbone:
         cfg.BACKBONE = args.backbone
+
+    # 如果命令行指定了学习率，则覆盖默认值
+    if args.lr:
+        cfg.LEARNING_RATE = args.lr
+        print(f"[*] 学习率已由命令行覆盖为: {cfg.LEARNING_RATE}")
 
     if args.mode == 'train':
         print(f">>> 启动无监督训练流水线 [Backbone: {cfg.BACKBONE}]...")

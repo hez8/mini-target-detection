@@ -45,6 +45,6 @@ class Config:
     # ---------------- 训练参数 ----------------
     BATCH_SIZE = 64            # 如果显存不够，可降至 8
     NUM_WORKERS = 4
-    PATIENCE = 50
+    PATIENCE = 100
     LEARNING_RATE = 1e-4
     EPOCHS = 1000

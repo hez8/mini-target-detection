@@ -49,7 +49,7 @@ def process_single_map_video(video_source, model, transform, cfg, weights_path, 
     video_writer = None
     output_path = None
     if save_video:
-        output_dir = os.path.join("data", "test_videos_result")
+        output_dir = os.path.join("results", "map")
         os.makedirs(output_dir, exist_ok=True)
         
         # 提取模型文件夹的后六位

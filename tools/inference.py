@@ -51,7 +51,7 @@ def process_single_video(video_source, model, spatio_filter, transform, cfg, wei
     video_writer = None
     output_path = None
     if save_video:
-        output_dir = os.path.join("data", "test_videos_result")
+        output_dir = os.path.join("results", "infer")
         os.makedirs(output_dir, exist_ok=True)
         
         # 提取模型文件夹的后六位用于版本追踪

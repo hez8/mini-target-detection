@@ -52,7 +52,7 @@ def process_single_video(video_path, output_dir, target_fps=5):
 def main():
     # ================= 配置区 =================
     # 存放原始视频的文件夹路径
-    INPUT_DIR = "data/raw_videos" 
+    INPUT_DIR = "data/train_videos" 
     
     # 抽帧后图片存放的文件夹路径 (必须与 default_config.py 中的 TRAIN_DATA_DIR 一致)
     OUTPUT_DIR = "data/train_frames" 

@@ -201,9 +201,14 @@ class TeacherStudentNet(nn.Module):
             t_feats = self.teacher(x)
         s_feats = self.student(x)
         
-        diff0 = torch.abs(t_feats[0] - s_feats[0])  # H/2
-        diff1 = torch.abs(t_feats[1] - s_feats[1])  # H/4
-        diff2 = torch.abs(t_feats[2] - s_feats[2])  # H/8
+        # [增量优化]：对特征进行 L2 归一化。
+        # 作用：消除不同骨干网络特征幅值差异，使 Loss 聚焦于“纹理模式”，显著提升 YOLO 等网络的收敛性。
+        t_feats_norm = [F.normalize(f, p=2, dim=1) for f in t_feats]
+        s_feats_norm = [F.normalize(f, p=2, dim=1) for f in s_feats]
+        
+        diff0 = torch.abs(t_feats_norm[0] - s_feats_norm[0])  # H/2
+        diff1 = torch.abs(t_feats_norm[1] - s_feats_norm[1])  # H/4
+        diff2 = torch.abs(t_feats_norm[2] - s_feats_norm[2])  # H/8
         
         # 多尺度特征对齐：全部上采样到 H/2 分辨率
         diff1_up = F.interpolate(diff1, size=diff0.shape[2:], mode='bilinear', align_corners=False)

@@ -20,7 +20,7 @@ def main():
     cfg = Config()
     
     # 确保保存目录存在
-    save_dir = "debug_dataset_outputs"
+    save_dir = os.path.join("results", "debug_dataset")
     os.makedirs(save_dir, exist_ok=True)
     
     print(f"[*] 正在加载数据集: {cfg.TRAIN_DATA_DIR}")

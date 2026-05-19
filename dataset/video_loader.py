@@ -30,7 +30,7 @@ class SelfSupervisedAnomalyDataset(Dataset):
         self.template_paths = glob.glob(os.path.join(self.anomaly_template_dir, "*.png"))
         
         if not self.template_paths:
-            print(f"[警告] 找不到预旋转图库：{self.anomaly_template_dir}，请确保已运行 prepare_templates.py！")
+            print(f"[警告] 找不到预旋转图库：{self.anomaly_template_dir}，请确保已运行 tools/prepare_templates.py！")
         
         self.transform = transform or transforms.Compose([
             transforms.ToTensor(),
